@@ -1,135 +1,179 @@
+<div align="center">
+
+<img src="docs/assets/agentic-news-architecture.svg" alt="Agentic AI News Intelligence System architecture" width="100%">
+
 # Agentic AI News Intelligence System
 
-An agentic editorial pipeline for discovering AI, GenAI, governance, compliance, startup, and enterprise technology news; evaluating candidate sources; generating citation-grounded LinkedIn-style drafts; and routing drafts through human approval before creating downstream publishing drafts.
+**A source-grounded, human-in-the-loop editorial intelligence pipeline for AI news, governance, compliance, startups, and enterprise technology analysis.**
 
-The system is designed around source-grounded generation, human-in-the-loop review, and auditable agent execution.
+![Python](https://img.shields.io/badge/Python-3.11+-0f172a?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-API-059669?style=for-the-badge&logo=fastapi&logoColor=white)
+![LangGraph](https://img.shields.io/badge/LangGraph-Agentic_Orchestration-38bdf8?style=for-the-badge)
+![OpenAI Compatible](https://img.shields.io/badge/LLM-OpenAI_Compatible-111827?style=for-the-badge&logo=openai&logoColor=white)
+![Slack](https://img.shields.io/badge/Slack-Human_Approval-4a154b?style=for-the-badge&logo=slack&logoColor=white)
 
-## Technical Stack
+</div>
 
-- **Language:** Python 3.11+
-- **API framework:** FastAPI
-- **Agent orchestration:** LangGraph `StateGraph`
-- **Data validation/configuration:** Pydantic v2 and `pydantic-settings`
-- **Persistence:** SQLAlchemy 2.x with a configurable `DATABASE_URL`
-- **Async/background entry points:** FastAPI background tasks and scheduler support
-- **HTTP clients:** `httpx`
-- **Content extraction/parsing:** BeautifulSoup
-- **Search integrations:** Tavily and SerpAPI
-- **Human approval:** Slack webhooks, slash commands, app mentions, and interactive approval actions
-- **Draft destination integration:** Webflow draft creation through a dedicated integration layer
-- **Testing:** pytest and pytest-asyncio
-- **Linting:** Ruff
-- **Packaging/dependency management:** `pyproject.toml` with uv-compatible lockfile
+---
 
-## LLM Layer
+## System Snapshot
 
-LLM calls are routed through `app/integrations/llm_client.py`, a lightweight OpenAI-compatible chat completions client.
+| Layer | Stack |
+| --- | --- |
+| API | FastAPI, Pydantic v2 |
+| Agent runtime | LangGraph `StateGraph` |
+| LLM interface | OpenAI-compatible chat completions |
+| Search intelligence | Tavily, SerpAPI, LLM query planning |
+| Persistence | SQLAlchemy 2.x, configurable `DATABASE_URL` |
+| Human review | Slack commands, events, interactive approval actions |
+| Draft destination | Draft-only CMS integration layer |
+| Quality controls | Guardrails, citation validation, quote preservation, compliance review |
+| Tests and linting | pytest, pytest-asyncio, Ruff |
 
-The model provider is configurable through environment variables:
+## What It Does
 
-- `LLM_ENABLED`: enables LLM-backed query planning and draft generation when true
-- `LLM_API_KEY` or `OPENAI_API_KEY`: API key used for chat completions
-- `LLM_BASE_URL`: OpenAI-compatible API base URL, defaulting to `https://api.openai.com/v1`
-- `LLM_MODEL`: chat model name, defaulting to `gpt-4o-mini`
-- `LLM_TIMEOUT_SECONDS`: request timeout for model calls
+This system turns a professional AI-news topic into a reviewed editorial draft.
 
-The client posts to `/chat/completions` with standard chat messages, temperature, and token limits. It also strips reasoning tags such as `<think>` and `<thought>` from model output before downstream use.
+```mermaid
+flowchart LR
+    A[Topic or Slack request] --> B[Search query planner]
+    B --> C[Source discovery]
+    C --> D[Fetch and normalize]
+    D --> E[Deduplicate]
+    E --> F[Score relevance]
+    F --> G[Extract claims]
+    G --> H[Validate citations]
+    H --> I[Generate draft]
+    I --> J[Compliance review]
+    J --> K[Slack approval]
+    K --> L{Decision}
+    L -->|Approve| M[Create draft item]
+    L -->|Needs edit| I
+    L -->|Reject| N[Record decision]
+```
 
-LLM usage appears in two places:
-
-1. **Search query planning** in `app/services/search_query_planner.py`
-   - Converts a user topic into targeted news and article search queries.
-   - Uses strict JSON output.
-   - Falls back to deterministic query templates when LLM mode is disabled or unavailable.
-
-2. **Draft writing** in `app/agents/draft_writing.py`
-   - Generates a professional, LinkedIn-style article draft from selected source context.
-   - Instructs the model to use only provided source material.
-   - Falls back to a deterministic template draft if LLM generation is disabled or fails.
+The architecture is deliberately conservative: the LLM assists with query planning and drafting, but source discovery, state transitions, validation, approvals, and persistence are handled by explicit application code.
 
 ## Agentic Architecture
 
-The pipeline is implemented as a LangGraph graph in `app/graphs/news_graph.py`. Shared state is defined in `app/graphs/news_state.py` as `NewsPipelineState`.
+The pipeline is implemented in `app/graphs/news_graph.py` with shared graph state in `app/graphs/news_state.py`.
 
-Current graph flow:
-
-```text
-source_discovery
-  -> fetch_normalize
-  -> deduplication
-  -> relevance_scoring
-  -> claim_extraction
-  -> quote_preservation
-  -> citation_validation
-  -> image_selection
-  -> draft_writing
-  -> compliance_review
-  -> slack_approval
-  -> END
+```mermaid
+stateDiagram-v2
+    [*] --> source_discovery
+    source_discovery --> fetch_normalize
+    fetch_normalize --> deduplication
+    deduplication --> relevance_scoring
+    relevance_scoring --> claim_extraction
+    claim_extraction --> quote_preservation
+    quote_preservation --> citation_validation
+    citation_validation --> image_selection
+    image_selection --> draft_writing
+    draft_writing --> compliance_review
+    compliance_review --> slack_approval
+    slack_approval --> [*]
 ```
 
-Each graph node is implemented as an agent module under `app/agents/`. Nodes receive the shared state dictionary, add their own outputs, append errors or audit events when needed, and pass the updated state forward.
+Each node is an agent module under `app/agents/`. Nodes read and write the shared `NewsPipelineState`, attach structured outputs, and preserve errors or audit events for later inspection.
 
-## Agents
+## Agent Matrix
 
-- **Source discovery:** Plans searches and gathers candidate URLs from Tavily and SerpAPI.
-- **Fetch and normalize:** Fetches discovered articles and normalizes article text, metadata, and source fields.
-- **Deduplication:** Removes repeated or already-seen source material.
-- **Relevance scoring:** Scores candidates against the requested AI/news topic and filters by `MIN_RELEVANCE_SCORE`.
-- **Claim extraction:** Extracts factual claims that need citation support.
-- **Quote preservation:** Tracks direct quotes separately so they can be preserved accurately.
-- **Citation validation:** Maps factual claims and draft evidence back to sources.
-- **Image selection:** Suggests image candidates for the selected story.
-- **Draft writing:** Produces the technical/editorial draft using either the configured LLM or a deterministic template fallback.
-- **Compliance review:** Checks draft quality and editorial safety before approval routing.
-- **Slack approval:** Posts draft approval messages to Slack with approve, needs-edit, and reject actions.
-- **Webflow publisher:** Creates a draft item only after an approval path calls it.
-- **Audit logger:** Records major workflow events for traceability.
+| Agent | Responsibility | Primary output |
+| --- | --- | --- |
+| `source_discovery` | Plans and runs searches across configured providers | Candidate source URLs |
+| `fetch_normalize` | Fetches source pages and normalizes metadata/content | Normalized articles |
+| `deduplication` | Removes repeated or already-seen source material | Deduped article list |
+| `relevance_scoring` | Scores candidates against the requested topic | Selected candidates |
+| `claim_extraction` | Extracts factual claims needing evidence | Claim set |
+| `quote_preservation` | Preserves direct quotes separately | Quote set |
+| `citation_validation` | Maps claims and draft evidence to sources | Citation set |
+| `image_selection` | Suggests relevant image candidates | Image candidates |
+| `draft_writing` | Generates the editorial draft | Technical blog draft |
+| `compliance_review` | Checks draft integrity and safety | Compliance report |
+| `slack_approval` | Routes draft to human reviewers | Approval message metadata |
+| `webflow_publisher` | Creates an approved draft item | Draft item metadata |
+| `audit_logger` | Records major workflow events | Audit event trail |
 
-## Human-In-The-Loop Workflow
+## LLM Layer
 
-Slack is the review surface for editors and operators.
+LLM calls are routed through `app/integrations/llm_client.py`, a small OpenAI-compatible chat completions client.
 
-Supported Slack interactions include:
+```mermaid
+flowchart TB
+    ENV[Environment config] --> CLIENT[LLMClient]
+    CLIENT --> QP[Search query planning]
+    CLIENT --> DW[Draft writing]
+    QP --> FALLBACK_Q[Deterministic query fallback]
+    DW --> FALLBACK_D[Template draft fallback]
+```
+
+Configurable model settings:
+
+| Variable | Purpose |
+| --- | --- |
+| `LLM_ENABLED` | Enables LLM-backed query planning and draft generation |
+| `LLM_API_KEY` or `OPENAI_API_KEY` | API key for chat completions |
+| `LLM_BASE_URL` | OpenAI-compatible API base URL |
+| `LLM_MODEL` | Chat model name, default `gpt-4o-mini` |
+| `LLM_TIMEOUT_SECONDS` | Request timeout for model calls |
+
+The LLM is used in two focused places:
+
+1. `app/services/search_query_planner.py` converts a user topic into strict JSON search queries.
+2. `app/agents/draft_writing.py` generates a LinkedIn-style professional draft from selected source context.
+
+When LLM mode is disabled or unavailable, both paths fall back to deterministic behavior so the pipeline can still complete.
+
+## Editorial Control Plane
+
+```mermaid
+flowchart LR
+    A[Allowed professional AI topic] --> B[Source-only context]
+    B --> C[Claim extraction]
+    C --> D[Citation validation]
+    D --> E[Quote preservation]
+    E --> F[Compliance review]
+    F --> G[Slack human approval]
+```
+
+Guardrails include:
+
+- Professional AI-news topic filtering
+- Rejection of unsafe or unrelated requests
+- Source-only drafting instructions
+- No invented facts, numbers, claims, or quotes
+- Direct quote preservation
+- Citation validation before approval routing
+- Compliance review before a human approval decision
+
+## Human-In-The-Loop Review
+
+Slack is the operational review surface.
+
+Supported interactions:
 
 - Slash commands for topic management and news fetches
 - App mentions with natural language requests
-- Interactive article approval actions
-- Signature verification for Slack request authenticity
+- Interactive approval actions: approve, needs edit, reject
+- Slack request signature verification
 - Processing locks to avoid duplicate in-flight requests from the same user/channel
-
-Approval decisions are persisted through repository functions so downstream actions can be tied to a run, article, reviewer, and Slack message.
-
-## Editorial Guardrails
-
-The system includes guardrails for professional AI-news use cases:
-
-- Topics are restricted to AI, governance, compliance, risk, privacy, security, regulation, healthcare AI, fintech, enterprise AI, startup, funding, and related professional domains.
-- Disallowed topics such as malware, credential theft, phishing, scams, explicit content, drugs, and other unsafe requests are rejected.
-- Draft prompts instruct the LLM to avoid invented facts, numbers, quotes, and unsupported claims.
-- Draft generation uses provided source context only.
-- Direct quotes are tracked separately.
-- Compliance review runs before Slack approval.
+- Persisted decisions tied to run, article, reviewer, channel, and message metadata
 
 ## API Surface
 
 FastAPI routers are registered in `app/main.py`.
 
-- `GET /health`
-- `POST /jobs/run-news-pipeline`
-- `POST /webhooks/slack/actions`
-- `POST /webhooks/slack/commands`
-- `POST /webhooks/slack/events`
-- Article routes under `/articles`
-- Draft destination routes under `/webflow`
+| Route | Purpose |
+| --- | --- |
+| `GET /health` | Health check |
+| `POST /jobs/run-news-pipeline` | Runs the news pipeline for a topic |
+| `POST /webhooks/slack/actions` | Receives Slack interactive actions |
+| `POST /webhooks/slack/commands` | Receives Slack slash commands |
+| `POST /webhooks/slack/events` | Receives Slack app events |
+| `/articles/*` | Article and draft inspection routes |
+| `/webflow/*` | Draft destination routes |
 
-The main pipeline entry point is:
-
-```http
-POST /jobs/run-news-pipeline
-```
-
-Example request:
+Example pipeline request:
 
 ```json
 {
@@ -141,8 +185,6 @@ Example request:
 ```
 
 ## Configuration
-
-Core environment variables:
 
 ```text
 DATABASE_URL=
@@ -211,5 +253,6 @@ app/
   db.py            Database setup/session helpers
   models.py        SQLAlchemy models
   repositories.py  Persistence operations
+docs/assets/       README graphics
 tests/             Unit and smoke tests
 ```

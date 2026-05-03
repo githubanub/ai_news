@@ -1,0 +1,119 @@
+<svg width="1400" height="620" viewBox="0 0 1400 620" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Agentic AI News System architecture</title>
+  <desc id="desc">A futuristic architecture graphic showing sources flowing into a LangGraph agent mesh, human approval, and draft creation.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1400" y2="620" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#07111f"/>
+      <stop offset="0.45" stop-color="#0c1f2e"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#67e8f9"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#f97316"/>
+    </linearGradient>
+    <linearGradient id="rose" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fb7185"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="9" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.25 0 0 0 0 0.85 0 0 0 0 1 0 0 0 0.45 0"/>
+      <feBlend in="SourceGraphic"/>
+    </filter>
+    <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M 42 0 L 0 0 0 42" fill="none" stroke="#ffffff" stroke-opacity="0.05" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1400" height="620" rx="34" fill="url(#bg)"/>
+  <rect width="1400" height="620" rx="34" fill="url(#grid)"/>
+  <path d="M72 500 C260 390 315 192 520 256 C650 297 696 421 844 362 C1008 296 1032 103 1290 130" stroke="#67e8f9" stroke-opacity="0.18" stroke-width="2"/>
+  <path d="M75 146 C244 226 382 98 534 170 C680 239 685 332 850 310 C1036 285 1109 394 1304 310" stroke="#22c55e" stroke-opacity="0.14" stroke-width="2"/>
+
+  <g opacity="0.9">
+    <circle cx="107" cy="105" r="3" fill="#67e8f9"/>
+    <circle cx="1245" cy="96" r="3" fill="#22c55e"/>
+    <circle cx="1268" cy="520" r="3" fill="#fbbf24"/>
+    <circle cx="182" cy="528" r="3" fill="#fb7185"/>
+  </g>
+
+  <text x="88" y="86" fill="#e5f4ff" font-family="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="36" font-weight="760">Agentic AI News Intelligence System</text>
+  <text x="90" y="122" fill="#9fb7c9" font-family="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="17">Source-grounded editorial agents with LLM drafting, compliance checks, Slack approval, and draft-only publishing.</text>
+
+  <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">
+    <g filter="url(#glow)">
+      <rect x="86" y="213" width="214" height="116" rx="18" fill="#0b1724" stroke="#67e8f9" stroke-opacity="0.55"/>
+      <text x="116" y="253" fill="#dffbff" font-size="18" font-weight="700">Signal Sources</text>
+      <text x="116" y="282" fill="#9fb7c9" font-size="14">Tavily, SerpAPI</text>
+      <text x="116" y="306" fill="#9fb7c9" font-size="14">news, blogs, analysis</text>
+    </g>
+
+    <g>
+      <path d="M310 271 L390 271" stroke="#67e8f9" stroke-opacity="0.65" stroke-width="2"/>
+      <path d="M380 261 L394 271 L380 281" stroke="#67e8f9" stroke-opacity="0.65" stroke-width="2" fill="none"/>
+    </g>
+
+    <g filter="url(#glow)">
+      <rect x="406" y="174" width="426" height="194" rx="24" fill="#0a1622" stroke="#22c55e" stroke-opacity="0.5"/>
+      <text x="450" y="220" fill="#ecfdf5" font-size="22" font-weight="760">LangGraph Agent Mesh</text>
+      <text x="450" y="252" fill="#a7c7bc" font-size="14">stateful nodes coordinate discovery, validation, writing, and review</text>
+      <g font-size="13" font-weight="650">
+        <rect x="450" y="281" width="118" height="34" rx="17" fill="#10253a" stroke="#38bdf8" stroke-opacity="0.4"/>
+        <text x="474" y="303" fill="#dffbff">discover</text>
+        <rect x="582" y="281" width="112" height="34" rx="17" fill="#10253a" stroke="#38bdf8" stroke-opacity="0.4"/>
+        <text x="610" y="303" fill="#dffbff">score</text>
+        <rect x="708" y="281" width="88" height="34" rx="17" fill="#10253a" stroke="#38bdf8" stroke-opacity="0.4"/>
+        <text x="731" y="303" fill="#dffbff">draft</text>
+        <rect x="450" y="326" width="130" height="34" rx="17" fill="#102918" stroke="#22c55e" stroke-opacity="0.45"/>
+        <text x="473" y="348" fill="#dcfce7">citations</text>
+        <rect x="594" y="326" width="126" height="34" rx="17" fill="#102918" stroke="#22c55e" stroke-opacity="0.45"/>
+        <text x="617" y="348" fill="#dcfce7">guardrails</text>
+        <rect x="734" y="326" width="62" height="34" rx="17" fill="#102918" stroke="#22c55e" stroke-opacity="0.45"/>
+        <text x="754" y="348" fill="#dcfce7">LLM</text>
+      </g>
+    </g>
+
+    <g>
+      <path d="M846 271 L926 271" stroke="#22c55e" stroke-opacity="0.65" stroke-width="2"/>
+      <path d="M916 261 L930 271 L916 281" stroke="#22c55e" stroke-opacity="0.65" stroke-width="2" fill="none"/>
+    </g>
+
+    <g filter="url(#glow)">
+      <rect x="944" y="213" width="184" height="116" rx="18" fill="#121826" stroke="#fbbf24" stroke-opacity="0.62"/>
+      <text x="980" y="253" fill="#fff7ed" font-size="18" font-weight="700">Human Gate</text>
+      <text x="980" y="282" fill="#d5b98f" font-size="14">Slack approval</text>
+      <text x="980" y="306" fill="#d5b98f" font-size="14">review decisions</text>
+    </g>
+
+    <g>
+      <path d="M1142 271 L1222 271" stroke="#fbbf24" stroke-opacity="0.7" stroke-width="2"/>
+      <path d="M1212 261 L1226 271 L1212 281" stroke="#fbbf24" stroke-opacity="0.7" stroke-width="2" fill="none"/>
+    </g>
+
+    <g filter="url(#glow)">
+      <rect x="1240" y="213" width="86" height="116" rx="18" fill="#171423" stroke="#fb7185" stroke-opacity="0.62"/>
+      <text x="1264" y="253" fill="#ffe4e6" font-size="18" font-weight="700">Draft</text>
+      <text x="1264" y="282" fill="#f5b8c0" font-size="14">CMS</text>
+      <text x="1264" y="306" fill="#f5b8c0" font-size="14">item</text>
+    </g>
+
+    <g opacity="0.96">
+      <rect x="88" y="430" width="278" height="62" rx="16" fill="#07111f" stroke="#334155"/>
+      <text x="116" y="456" fill="#e2e8f0" font-size="14" font-weight="720">OpenAI-compatible LLM layer</text>
+      <text x="116" y="478" fill="#94a3b8" font-size="13">configurable model, base URL, and fallback templates</text>
+      <rect x="393" y="430" width="250" height="62" rx="16" fill="#07111f" stroke="#334155"/>
+      <text x="421" y="456" fill="#e2e8f0" font-size="14" font-weight="720">Citation-grounded drafting</text>
+      <text x="421" y="478" fill="#94a3b8" font-size="13">claims, quotes, citations, and compliance checks</text>
+      <rect x="670" y="430" width="240" height="62" rx="16" fill="#07111f" stroke="#334155"/>
+      <text x="698" y="456" fill="#e2e8f0" font-size="14" font-weight="720">Audit-friendly state</text>
+      <text x="698" y="478" fill="#94a3b8" font-size="13">run IDs, node outputs, errors, and decisions</text>
+      <rect x="937" y="430" width="270" height="62" rx="16" fill="#07111f" stroke="#334155"/>
+      <text x="965" y="456" fill="#e2e8f0" font-size="14" font-weight="720">Human-in-the-loop controls</text>
+      <text x="965" y="478" fill="#94a3b8" font-size="13">approve, request edit, or reject before draft creation</text>
+    </g>
+  </g>
+</svg>
