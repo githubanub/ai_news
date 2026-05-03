@@ -1,0 +1,41 @@
+app = "compliance-ai-news"
+primary_region = "nrt"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  APP_ENV = "production"
+  APP_PORT = "8080"
+  APP_PUBLIC_BASE_URL = "https://compliance-ai-news.fly.dev"
+  DEFAULT_TIME_WINDOW_HOURS = "24"
+  MAX_STORIES_PER_RUN = "10"
+  MIN_RELEVANCE_SCORE = "0.72"
+  SCHEDULER_ENABLED = "true"
+  SCHEDULER_INTERVAL_MINUTES = "1440"
+  SCHEDULER_API_BASE_URL = "http://compliance-ai-news.internal:8080"
+  SCHEDULER_REQUEST_TIMEOUT_SECONDS = "600"
+  DUPLICATE_LOOKBACK_DAYS = "30"
+  SLACK_PROCESSING_LOCK_TIMEOUT_MINUTES = "15"
+
+[processes]
+  app = "uv run uvicorn app.main:app --host 0.0.0.0 --port 8080"
+  scheduler = "uv run python -m app.scheduler"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+  processes = ["app"]
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
+  processes = ["scheduler"]

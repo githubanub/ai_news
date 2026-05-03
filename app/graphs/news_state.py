@@ -5,6 +5,9 @@ class NewsPipelineState(TypedDict, total=False):
     run_id: str
     topic: str
     time_window_hours: int
+    skip_duplicate_check: bool
+    search_queries: dict[str, list[str]]
+    duplicate_sources_skipped: int
     discovered_sources: list[dict[str, Any]]
     raw_articles: list[dict[str, Any]]
     normalized_articles: list[dict[str, Any]]

@@ -1,0 +1,12 @@
+.env
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+.ruff_cache
+.git
+test.db
+*.db
+*.sqlite
+*.sqlite3
+agentic_ai_news_system.egg-info
